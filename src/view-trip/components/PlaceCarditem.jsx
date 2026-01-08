@@ -30,6 +30,7 @@ function PlaceCarditem({ place }) {
           onError={(e) => {
             console.error("Image failed to load:", PhotoUrl);
             e.target.src = '/placeholder.jpg';
+            e.target.onError = null;
           }}
           className='w-[130px] h-[130px] rounded-xl object-cover'
         />

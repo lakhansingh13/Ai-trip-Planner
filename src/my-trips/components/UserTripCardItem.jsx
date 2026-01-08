@@ -28,6 +28,7 @@ function UserTripCardItem({ trip }) {
           onError={(e) => {
             console.error("Image failed to load:", PhotoUrl);
             e.target.src = '/placeholder.jpg';
+            e.target.onError = null;
           }}
           className="h-[250px] w-full object-cover rounded-xl" />
 
@@ -35,7 +36,7 @@ function UserTripCardItem({ trip }) {
 
         <div>
           <h2 className='font-bold text-lg'>{trip?.userSelection?.location?.label}</h2>
-          <h2 className='text-sm text-gray-500'>{trip?.userSelection.noOfDats} days trip with {trip?.userSelection?.budget} Budget</h2>
+          <h2 className='text-sm text-gray-500'>{trip?.userSelection?.noOfDays} days trip with {trip?.userSelection?.budget} Budget</h2>
         </div>
       </div>
     </Link>
