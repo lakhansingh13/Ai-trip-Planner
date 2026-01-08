@@ -66,4 +66,5 @@ export const GetPlaceDetails = (data) => {
   });
 };
 
+
 export const PHOTO_REF_URL = '{NAME}';

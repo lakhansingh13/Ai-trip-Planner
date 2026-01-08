@@ -27,7 +27,8 @@ function InfoSection({ trip }) {
     return (
         <div>
             <div className='relative'>
-                <img src={PhotoUrl ? PhotoUrl : '/placeholder.jpg'} className="h-[200px] md:h-[300px] w-full object-cover rounded-xl" />
+                <img src={PhotoUrl ? PhotoUrl : '/placeholder.jpg'} className="h-[200px] md:h-[300px] w-full object-cover rounded-xl"
+                    onError={(e) => { e.target.src = '/placeholder.jpg'; e.target.onError = null; }} />
                 <div className='absolute top-5 right-5'>
                     <Button className="rounded-full h-10 w-10 p-0"><IoIosSend className="text-lg" /></Button>
                 </div>

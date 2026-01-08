@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react';
 import { GeoapifyGeocoderAutocomplete, GeoapifyContext } from '@geoapify/react-geocoder-autocomplete'
 import '@geoapify/geocoder-autocomplete/styles/minimal.css'
 import { Input } from "@/components/ui/input";
@@ -150,7 +150,7 @@ function CreateTrip() {
             <div
               key={index}
               onClick={() => handleInputChange('budget', item.title)}
-              className={`p-4 border cursor-pointer rounded-lg hover:shadow-lg ${formData?.budget === item.title && 'shadow-lg border-black'}`}>
+              className={`p-4 border cursor-pointer rounded-lg hover:shadow-xl hover:scale-105 transition-all ${formData?.budget === item.title && 'shadow-xl border-primary border-2'}`}>
               <h2 className='text-4xl'>{item.icon}</h2>
               <h2 className='font-bold text-lg'>{item.title}</h2>
               <h2 className='text-sm text-gray-500'>{item.desc}</h2>
@@ -166,7 +166,7 @@ function CreateTrip() {
             <div
               key={index}
               onClick={() => handleInputChange('traveler', item.people)}
-              className={`p-4 border cursor-pointer rounded-lg hover:shadow-lg ${formData?.traveler === item.people && 'shadow-lg border-black'}`}>
+              className={`p-4 border cursor-pointer rounded-lg hover:shadow-xl hover:scale-105 transition-all ${formData?.traveler === item.people && 'shadow-xl border-primary border-2'}`}>
               <h2 className='text-4xl'>{item.icon}</h2>
               <h2 className='font-bold text-lg'>{item.title}</h2>
               <h2 className='text-sm text-gray-500'>{item.desc}</h2>
