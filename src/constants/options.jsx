@@ -16,7 +16,7 @@ export const SelectTravelersList = [
     {
         id: 3,
         title: 'Family',
-        desc: 'A group of fun-loving adventurers',
+        desc: 'A group of fun adventurers',
         icon: '👨‍👩‍👧‍👦',
         people: '3 to 5 People'
     },
@@ -51,4 +51,4 @@ export const SelectBudgetOptions = [
 ];
 
 
-export const AI_PROMPT = 'Generate a Travel Plan for Location: {location}, for {totalDays} Days for {traveler} with a {budget} budget. Give me Hotel options list with HotelName, Hotel address, Price, hotel image url, Geo Coordinates, rating, descriptions and suggest itinerary with placeName, Place Details, Place Image Url, Geo Coordinates, ticket Pricing, Time Travel each of the location for {totalDays} days with each day plan with best time to visit in JSON format';
+export const AI_PROMPT = 'Generate a Travel Plan for Location: {location}, for {totalDays} Days for {travelers} with a {budget} budget. Output in the following JSON format: { "travelPlan": { "location": "{location}", "totalDays": "{totalDays}", "travelers": "{travelers}", "budget": "{budget}", "hotelOptions": [ { "hotelName": "", "address": "", "price": "", "geoCoordinates": { "lat": 0, "lng": 0 }, "rating": 0, "description": "" } ], "itinerary": [ { "day": 1, "activities": [ { "placeName": "", "placeDetails": "", "geoCoordinates": { "lat": 0, "lng": 0 }, "ticketPricing": "", "travelTime": "", "bestTimeToVisit": "" } ] } ] } }. Provide exactly 4 or 8 Hotels and exactly 4 activities per day (Always generate a MULTIPLE OF 4 for hotels and an EVEN number for activities to fit the 4-column UI grid perfectly). IMPORTANT: Do NOT include image URLs in the response. Provide detailed and engaging descriptions (at least 2-3 sentences) for each hotel and activity so that the UI cards look full and informative. Crucially, provide all prices (hotels and tickets) in the locally used currency of {location} (e.g., ₹ for India, $ for USA, etc.).'

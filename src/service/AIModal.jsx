@@ -4,17 +4,15 @@ const apiKey = import.meta.env.VITE_GOOGLE_GEMINI_AI_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey);
 
 const model = genAI.getGenerativeModel({
-    model: "models/gemini-2.5-flash",
-    systemInstruction: "Generate Travel Plan for Location: Las Vegas, for 3 Days for Couple with a Cheap budget, Give me a Hotels options list with HotelName, Hotel address, Price, hotel image url, geo coordinates, rating, descriptions and suggest itinerary with placeName, Place Details, Place Image Url, Geo Coordinates, ticket Pricing, Time t travel each of the location for 3 days with each day plan with best time to visit in JSON format.\n",
+    model: "models/gemini-3.1-flash-lite-preview",
+    systemInstruction: "You are a professional travel assistant. Provide a concise, highly readable travel plan in JSON format. Return ONLY JSON.\n",
 });
 
 const generationConfig = {
-    temperature: 1,
+    temperature: 0.7, 
     topP: 0.95,
     topK: 64,
-    maxOutputTokens: 65536,
-    responseModalities: [
-    ],
+    maxOutputTokens: 8192, // Increased from 2048 to prevent truncation on long trips
     responseMimeType: "application/json",
 };
 
@@ -37,6 +35,51 @@ export const chatSession = model.startChat({
         },
     ],
 });
+
+export const getDetailedAIInfo = async (query) => {
+  // 1. Check Cache first
+  const cacheKey = `ai_detail_${query.replace(/\s+/g, '_').toLowerCase()}`;
+  const cachedData = sessionStorage.getItem(cacheKey);
+  
+  if (cachedData) {
+    try {
+      return JSON.parse(cachedData);
+    } catch (e) {
+      sessionStorage.removeItem(cacheKey);
+    }
+  }
+
+  try {
+      const detailModel = genAI.getGenerativeModel({
+          model: "models/gemini-3.1-flash-lite-preview", 
+          systemInstruction: "You are a professional travel assistant. Provide concise, expert-level info in JSON. Fields: 'description' (max 2 sentences), 'rules' (max 4), 'timing' (open/close/note), 'detailedPricing' (MUST BE IN THE DESTINATION'S LOCAL CURRENCY), 'amenities', 'nearbyPlaces'. Return ONLY JSON.\n",
+      });
+
+      const prompt = `Provide concise travel details about: ${query}. Return only JSON.`;
+      const result = await detailModel.generateContent(prompt);
+      const response = await result.response;
+      const text = await response.text();
+      
+      // Extract JSON more robustly
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      const jsonStr = jsonMatch ? jsonMatch[0] : text;
+      
+      const parsedData = JSON.parse(jsonStr);
+      
+      // 2. Save to Cache on success
+      sessionStorage.setItem(cacheKey, JSON.stringify(parsedData));
+      
+      return parsedData;
+  } catch (error) {
+      console.error("Error fetching detailed AI info:", error);
+      
+      // 3. Return a special error object if it's a rate limit
+      if (error?.message?.includes('429') || error?.status === 429) {
+        return { isRateLimit: true };
+      }
+      return null;
+  }
+};
 
 
 
