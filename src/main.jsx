@@ -12,6 +12,8 @@ import Viewtrip from './view-trip/[tripId]/index.jsx'
 import MyTrips from './my-trips'
 import { ThemeProvider } from './components/theme-provider'
 import { registerSW } from 'virtual:pwa-register'
+import ErrorPage from './components/custom/ErrorPage'
+import NotFound from './components/custom/NotFound'
 
 // Register the service worker
 const updateSW = registerSW({
@@ -28,19 +30,27 @@ const updateSW = registerSW({
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <App />
+    element: <App />,
+    errorElement: <ErrorPage />
   },
   {
     path: '/create-trip',
-    element: <CreateTrip />
+    element: <CreateTrip />,
+    errorElement: <ErrorPage />
   },
   {
     path: '/view-trip/:tripId',
-    element: <Viewtrip />
+    element: <Viewtrip />,
+    errorElement: <ErrorPage />
   },
   {
     path: '/my-trips',
-    element: <MyTrips />
+    element: <MyTrips />,
+    errorElement: <ErrorPage />
+  },
+  {
+    path: '*',
+    element: <NotFound />
   }
 ])
 
