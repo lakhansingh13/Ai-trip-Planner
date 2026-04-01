@@ -103,16 +103,13 @@ function PlaceCarditem({ place }) {
         </div>
       </DialogTrigger>
 
-      <DialogContent className="fixed bottom-0 sm:bottom-auto sm:top-[50%] left-0 sm:left-[50%] right-0 sm:right-auto translate-x-0 sm:translate-x-[-50%] sm:translate-y-[-50%] w-full sm:max-w-2xl p-0 overflow-hidden border-none glass-card hover:scale-100 sm:scale-in-center animate-in slide-in-from-bottom sm:zoom-in-95 duration-300 h-fit max-h-[88vh] sm:max-h-[90vh] flex flex-col rounded-t-[2.5rem] rounded-b-none sm:rounded-3xl outline-none">
+      <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[94%] sm:max-w-2xl p-0 overflow-hidden border-none glass-card animate-in zoom-in-95 duration-300 h-fit max-h-[90vh] flex flex-col rounded-3xl outline-none shadow-2xl shadow-indigo-500/10">
         <div className="sr-only">
           <DialogTitle>{safeRender(place.placeName)} Details</DialogTitle>
           <DialogDescription>Detailed information about {safeRender(place.placeName)} including AI insights, timings, and rules.</DialogDescription>
         </div>
 
-        {/* Mobile Drag Handle */}
-        <div className="flex sm:hidden justify-center items-center pt-4 pb-2">
-          <div className="w-12 h-1.5 bg-gray-300/40 dark:bg-zinc-600/40 rounded-full" />
-        </div>
+
 
         <div className="relative h-64 md:h-80">
           <img
@@ -185,7 +182,7 @@ function PlaceCarditem({ place }) {
             ) : aiData && !aiData.errorType ? (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 {/* Detailed Description */}
-                <div className="p-5 bg-white/50 dark:bg-white/5 rounded-2xl border border-white/20 backdrop-blur-md italic text-sm text-gray-700 dark:text-zinc-300 leading-relaxed shadow-sm">
+                <div className="p-6 bg-white/60 dark:bg-white/5 rounded-3xl border border-white/40 dark:border-white/10 italic text-sm text-gray-700 dark:text-zinc-300 leading-relaxed shadow-sm">
                   "{safeRender(aiData.description)}"
                 </div>
 

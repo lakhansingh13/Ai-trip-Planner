@@ -96,16 +96,13 @@ function HotelCarditem({ hotel }) {
                 </div>
             </DialogTrigger>
 
-            <DialogContent className="fixed bottom-0 sm:bottom-auto sm:top-[50%] left-0 sm:left-[50%] right-0 sm:right-auto translate-x-0 sm:translate-x-[-50%] sm:translate-y-[-50%] w-full sm:max-w-2xl p-0 overflow-hidden border-none glass-card hover:scale-100 sm:scale-in-center animate-in slide-in-from-bottom sm:zoom-in-95 duration-300 h-fit max-h-[88vh] sm:max-h-[90vh] flex flex-col rounded-t-[2.5rem] rounded-b-none sm:rounded-3xl outline-none">
+            <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[94%] sm:max-w-2xl p-0 overflow-hidden border-none glass-card animate-in zoom-in-95 duration-300 h-fit max-h-[90vh] flex flex-col rounded-3xl outline-none">
                 <div className="sr-only">
                     <DialogTitle>{safeRender(hotel?.hotelName)} Details</DialogTitle>
                     <DialogDescription>Detailed information about {safeRender(hotel?.hotelName)} including AI insights, rules, and amenities.</DialogDescription>
                 </div>
 
-                {/* Mobile Drag Handle */}
-                <div className="flex sm:hidden justify-center items-center pt-4 pb-2">
-                    <div className="w-12 h-1.5 bg-gray-300/40 dark:bg-zinc-600/40 rounded-full" />
-                </div>
+
                 <div className="relative h-64 md:h-80">
                     <img
                         src={PhotoUrl || '/placeholder.jpg'}
