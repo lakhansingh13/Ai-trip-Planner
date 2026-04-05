@@ -1,4 +1,3 @@
-import { GetPlaceDetails, PHOTO_REF_URL } from '@/service/GlobalApi';
 import React, { useEffect, useState } from 'react'
 import {
     Dialog,
@@ -16,15 +15,15 @@ import { safeRender } from '@/lib/renderUtils';
 
 function HotelCarditem({ hotel }) {
 
-    const [PhotoUrl, setPhotoUrl] = useState();
     const [open, setOpen] = useState(false);
     const [aiData, setAiData] = useState(null);
     const [loadingAI, setLoadingAI] = useState(false);
+    const [realStats, setRealStats] = useState({
+        rating: hotel?.rating,
+        address: hotel?.address || hotel?.hotelAddress
+    });
 
-    useEffect(() => {
-        hotel && GetPlacePhoto();
-    }, [hotel])
-
+    // useEffect to fetch AI details when open
     useEffect(() => {
         if (open && !aiData) {
             fetchAIDetails();
@@ -37,27 +36,12 @@ function HotelCarditem({ hotel }) {
         const data = await getDetailedAIInfo(query);
 
         if (data?.isRateLimit) {
-            // Keep aiData null but maybe show a specific state in UI
             setAiData({ errorType: 'RATE_LIMIT' });
         } else if (data) {
             setAiData(data);
         }
         setLoadingAI(false);
     };
-
-    const GetPlacePhoto = async () => {
-        const data = {
-            textQuery: hotel?.hotelName
-        }
-        await GetPlaceDetails(data).then(resp => {
-            if (resp.data.places[0].photos) {
-                const PhotoUrl = PHOTO_REF_URL.replace('{NAME}', resp.data.places[0].photos[0].name);
-                setPhotoUrl(PhotoUrl);
-            }
-        }).catch(err => {
-            console.error("Error fetching photo:", err);
-        });
-    }
 
     const openInMaps = () => {
         const url = 'https://www.google.com/maps/search/?api=1&query=' + hotel?.hotelName + "," + (hotel?.address || hotel?.hotelAddress);
@@ -67,16 +51,15 @@ function HotelCarditem({ hotel }) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <div className='glass-card p-4 h-full flex flex-col gap-3 group animate-stagger-in cursor-pointer'>
-                    <div className="relative aspect-[16/10] overflow-hidden rounded-2xl">
-                        <img
-                            src={PhotoUrl || '/placeholder.jpg'}
-                            className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
-                            alt={hotel?.hotelName}
-                            onError={(e) => { e.target.src = '/placeholder.jpg'; e.target.onError = null; }}
-                        />
-                        <div className="absolute top-3 right-3 bg-white/90 dark:bg-black/90 backdrop-blur-md px-2 py-1 rounded-lg text-xs font-bold shadow-sm">
-                            ⭐ {safeRender(hotel?.rating)}
+                <div className='glass-card p-4 h-full flex flex-col gap-3 group cursor-pointer border-orange-500/10 hover:border-orange-500/30 transition-all'>
+                    <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500/10 via-amber-500/5 to-transparent flex items-center justify-center border border-black/5 dark:border-white/5">
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(249,115,22,0.1),transparent)]" />
+                        <div className="relative transform transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+                            <FaChevronRight className="size-12 text-orange-500/20 absolute -right-4 -bottom-4 rotate-12" />
+                            <Sparkles className="size-10 text-orange-500/40 drop-shadow-sm" />
+                        </div>
+                        <div className="absolute top-3 right-3 bg-white/90 dark:bg-black/90 backdrop-blur-md px-2 py-1 rounded-lg text-xs font-bold shadow-sm border border-black/5">
+                            ⭐ {safeRender(realStats.rating)}
                         </div>
                     </div>
 
@@ -86,7 +69,7 @@ function HotelCarditem({ hotel }) {
                         </h2>
                         <div className="flex flex-col gap-1.5 flex-1">
                             <h2 className='text-xs text-muted-foreground flex items-center gap-1 line-clamp-2'>
-                                <span className="text-orange-500">📍</span> {safeRender(hotel?.address || hotel?.hotelAddress)}
+                                <span className="text-orange-500">📍</span> {safeRender(realStats.address)}
                             </h2>
                             <h2 className='text-sm font-semibold text-black dark:text-gray-200 mt-auto pt-2 border-t border-black/5 dark:border-white/5'>
                                 💰 {safeRender(hotel?.price || hotel?.priceRange)} <span className="text-[10px] font-normal text-muted-foreground">/ night</span>
@@ -103,17 +86,18 @@ function HotelCarditem({ hotel }) {
                 </div>
 
 
-                <div className="relative h-64 md:h-80">
-                    <img
-                        src={PhotoUrl || '/placeholder.jpg'}
-                        className="w-full h-full object-cover"
-                        alt={hotel?.hotelName}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="relative h-48 md:h-56 bg-gradient-to-br from-orange-600 via-orange-500 to-amber-600 overflow-hidden">
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="p-6 rounded-full bg-white/10 backdrop-blur-md border border-white/20 animate-pulse">
+                             <Sparkles className="size-16 text-white" />
+                        </div>
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                     <div className="absolute bottom-6 left-6 right-6">
                         <h2 className="text-3xl font-bold text-white drop-shadow-md mb-2">{safeRender(hotel?.hotelName)}</h2>
                         <p className="text-gray-200 text-sm flex items-center gap-2">
-                            <FaMapMarkerAlt className="text-orange-400" /> {safeRender(hotel?.address || hotel?.hotelAddress)}
+                            <FaMapMarkerAlt className="text-orange-400" /> {safeRender(realStats.address)}
                         </p>
                     </div>
                 </div>
@@ -124,7 +108,7 @@ function HotelCarditem({ hotel }) {
                         <div className="flex flex-col items-center p-2.5 bg-orange-50 dark:bg-orange-950/20 rounded-2xl border border-orange-100 dark:border-orange-900/30 group hover:bg-orange-100 dark:hover:bg-orange-900/40 transition-all">
                             <FaStar className="text-orange-500 text-lg mb-0.5" />
                             <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider">Rating</span>
-                            <span className="text-base font-bold text-black dark:text-white">{safeRender(hotel?.rating)}</span>
+                            <span className="text-base font-bold text-black dark:text-white">{safeRender(realStats.rating)}</span>
                         </div>
                         <div className="flex flex-col items-center p-2.5 bg-blue-50 dark:bg-blue-950/20 rounded-2xl border border-blue-100 dark:border-blue-900/30 group hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all">
                             <FaMoneyBillWave className="text-blue-500 text-lg mb-0.5" />

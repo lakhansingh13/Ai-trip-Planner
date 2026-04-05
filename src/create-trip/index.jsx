@@ -14,8 +14,9 @@ import {
 } from "@/components/ui/dialog"
 import { FcGoogle } from "react-icons/fc";
 import { useGoogleLogin } from '@react-oauth/google';
+import LocationAutocomplete from '@/components/custom/LocationAutocomplete';
 import axios from 'axios';
-import { doc, setDoc } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
 import { db } from '@/service/firebaseConfig';
 import { useNavigate } from 'react-router-dom';
 
@@ -67,41 +68,10 @@ function CreateTrip() {
   }, []);
 
   useEffect(() => {
-    // Check if google maps is loaded
-    if (window.google && window.google.maps && window.google.maps.places) {
-      const autocomplete = new window.google.maps.places.Autocomplete(autocompleteRef.current, {
-        fields: ['address_components', 'geometry', 'name'],
-      });
-
-      autocomplete.addListener('place_changed', () => {
-        const selectedPlace = autocomplete.getPlace();
-        console.log("Selected Place from standard Autocomplete:", selectedPlace);
-
-        const locationLabel = selectedPlace.formatted_address || selectedPlace.name || "Selected Location";
-
-        if (selectedPlace.geometry && selectedPlace.geometry.location) {
-          setFormdata((prev) => ({
-            ...prev,
-            location: {
-              label: locationLabel,
-              location: {
-                lat: selectedPlace.geometry.location.lat(),
-                lng: selectedPlace.geometry.location.lng()
-              }
-            }
-          }));
-        } else {
-          toast.error("Please select a location from the dropdown!");
-        }
-      });
-    } else {
-      console.error("Google Maps Places library not loaded yet.");
-    }
-  }, []);
-
-  useEffect(() => {
     console.log("Form data changed:", formData);
   }, [formData]);
+
+
 
   const handleInputChange = (name, value) => {
     setFormdata({
@@ -138,17 +108,65 @@ function CreateTrip() {
 
   const SaveAiTrip = async (TripData) => {
     setLoading(true);
-    const user = JSON.parse(localStorage.getItem('user'));
-    const docId = Date.now().toString();
-    await setDoc(doc(db, "AITrips", docId), {
-      userSelection: formData,
-      TripData: JSON.parse(TripData),
-      userEmail: user?.email,
-      id: docId
+    console.log("Saving Process Initiated...");
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user) {
+        toast.error("User not found. Please login again.");
+        setLoading(false);
+        return;
+      }
 
-    });
-    setLoading(false);
-    navigate('/view-trip/' + docId)
+      // SANITIZE: Remove markdown code blocks if present
+      const cleanData = TripData.replace(/```json/g, '').replace(/```/g, '').trim();
+      let parsedData;
+      try {
+        parsedData = JSON.parse(cleanData);
+        if (parsedData.travelPlan) parsedData = parsedData.travelPlan;
+        else if (parsedData.trip) parsedData = parsedData.trip;
+      } catch (e) {
+        console.error("JSON Parse Error:", e);
+        toast.error("AI returned invalid format. Try again.");
+        setLoading(false);
+        return;
+      }
+
+      console.log("Preparing to write to Firestore...");
+
+      // Always Save to LocalStorage as a fallback
+      const localTripData = {
+        userSelection: formData,
+        TripData: parsedData,
+        userEmail: user?.email,
+        id: 'local'
+      };
+      localStorage.setItem('last_trip', JSON.stringify(localTripData));
+
+      // Timeout diagnostic & Fallback redirection
+      const timeout = setTimeout(() => {
+        console.warn("Firebase is hanging. Falling back to LocalStorage...");
+        toast.info("Firebase is taking too long. Opening Local Backup...");
+        setLoading(false);
+        navigate('/view-trip/local');
+      }, 5000);
+
+      const docRef = await addDoc(collection(db, "AITrips"), {
+        userSelection: formData,
+        TripData: parsedData,
+        userEmail: user?.email,
+        createdAt: new Date().toISOString()
+      });
+
+      clearTimeout(timeout);
+      console.log("Successfully saved to Cloud! ID:", docRef.id);
+
+      setLoading(false);
+      navigate('/view-trip/' + docRef.id);
+    } catch (error) {
+      setLoading(false);
+      console.error("CRITICAL FIREBASE ERROR:", error);
+      toast.error(`Firebase Error: ${error.message || "Unknown error"}`);
+    }
   }
 
   const OnGenerateTrip = async () => {
@@ -189,10 +207,13 @@ function CreateTrip() {
 
     try {
       const result = await chatSession.sendMessage(CLEAN_PROMPT);
-      console.log(await result?.response?.text());
-      setLoading(false);
-      SaveAiTrip(result?.response?.text())
+      const tripText = await result?.response?.text();
+      console.log("AI Response:", tripText);
+
+      // Wait for the save process to complete
+      await SaveAiTrip(tripText);
     } catch (err) {
+      setLoading(false);
       toast.error("Failed to generate trip.");
       console.error("AI error:", err);
     }
@@ -221,13 +242,15 @@ function CreateTrip() {
       </div>
 
       <div className='mt-10 md:mt-8 flex flex-col gap-8'>
-        <div className="glass-card p-6">
+        <div className="glass-card p-6 relative z-10">
           <h2 className='text-xl my-3 font-bold'>What is your destination of choice?</h2>
-          <div className="mt-2">
-            <Input
-              ref={autocompleteRef}
-              placeholder="Search destination"
-              className="w-full"
+          <div className="mt-2 relative z-50">
+            <LocationAutocomplete
+              placeholder="Search for destination (e.g. Goa, India)"
+              onSelect={(value) => {
+                setPlace(value.label);
+                handleInputChange('location', value);
+              }}
             />
           </div>
         </div>
@@ -315,6 +338,10 @@ function CreateTrip() {
       {/* Loading Dialog */}
       <Dialog open={loading} onOpenChange={setLoading}>
         <DialogContent className="max-w-md border-none bg-transparent shadow-none p-0 outline-none">
+          <div className="sr-only">
+            <DialogTitle>Loading Trip</DialogTitle>
+            <DialogDescription>Please wait while we generate and save your personalized trip itinerary.</DialogDescription>
+          </div>
           <div className="flex flex-col items-center justify-center gap-6 sm:gap-8 p-5 sm:p-10 glass-card overflow-hidden relative">
             <div className="relative h-48 sm:h-64 w-full flex items-center justify-center overflow-hidden rounded-2xl bg-white dark:bg-black/10 border border-white/20">
               <img

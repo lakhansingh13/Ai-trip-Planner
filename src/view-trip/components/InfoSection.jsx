@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from '@/components/ui/button';
 import { IoIosSend } from "react-icons/io";
-import { GetPlaceDetails, PHOTO_REF_URL } from "@/service/GlobalApi";
+import { getUnsplashPhoto, getPexelsPhoto, getWikimediaPhoto } from "@/service/GlobalApi";
 
 
 // const PHOTO_REF_URL='https://places.googleapis.com/v1/{NAME}/media?maxHeightPx=1000&maxWidthPx=1000&key='+import.meta.env.VITE_GOOGLE_PLACE_API_KEY
@@ -14,17 +14,37 @@ function InfoSection({ trip }) {
     }, [trip])
 
     const GetPlacePhoto = async () => {
-        const data = {
-            textQuery: trip?.userSelection?.location?.label
+        const query = trip?.userSelection?.location?.label;
+        const lat = trip?.userSelection?.location?.location?.lat;
+        const lng = trip?.userSelection?.location?.location?.lng;
+        
+        if (!query) return;
+
+        let photo = null;
+        const cleanQuery = query?.split(',')[0] || query;
+
+        // 1. Try Wikimedia First (User Request: Best for Landmarks/Geography)
+        try {
+            photo = await getWikimediaPhoto(cleanQuery);
+        } catch (e) { console.error("Wikimedia error", e); }
+
+        // 2. Try Unsplash (Better aesthetics)
+        if (!photo) {
+            try {
+                photo = await getUnsplashPhoto(cleanQuery + " travel");
+            } catch (e) { console.error("Unsplash error", e); }
         }
-        const result = await GetPlaceDetails(data).then(resp => {
-            if (resp.data.places[0].photos) {
-                const PhotoUrl = PHOTO_REF_URL.replace('{NAME}', resp.data.places[0].photos[3].name);
-                setPhotoUrl(PhotoUrl);
-            }
-        }).catch(err => {
-            console.error("Error fetching photo:", err);
-        });
+
+        // 3. Try Pexels
+        if (!photo) {
+            try {
+                photo = await getPexelsPhoto(cleanQuery);
+            } catch (e) { console.error("Pexels error", e); }
+        }
+
+        if (photo) {
+            setPhotoUrl(photo);
+        }
     }
     return (
         <div className="animate-stagger-in">

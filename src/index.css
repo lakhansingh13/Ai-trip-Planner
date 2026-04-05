@@ -62,6 +62,9 @@
 @layer base {
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent !important;
+    outline: none !important;
+    -webkit-focus-ring-color: transparent !important;
   }
 
   body {
@@ -80,18 +83,66 @@ h6 {
 
 /* Glassmorphism Utilities */
 .glass-nav {
-  @apply bg-white/10 dark:bg-slate-900/40 backdrop-blur-xl border-b border-white/10 dark:border-white/20;
+  @apply bg-white/40 dark:bg-slate-950/40 backdrop-blur-2xl border-b border-white/20 dark:border-white/10 shadow-sm transition-all duration-300;
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.5);
-  @apply backdrop-blur-2xl border border-white/40 dark:bg-slate-900/40 dark:border-white/10 rounded-3xl shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] transition-all duration-500 ease-in-out;
+  background: rgba(255, 255, 255, 0.7);
+  @apply backdrop-blur-2xl border border-white/60 dark:bg-slate-900/60 dark:border-white/10 rounded-3xl shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] transition-all duration-500 ease-in-out;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .glass-card:hover {
-  background: rgba(255, 255, 255, 0.65);
-  @apply border-white/60 dark:bg-slate-900/60 dark:border-white/20 scale-[1.02] shadow-[0_20px_40px_rgba(0,0,0,0.12)] dark:shadow-indigo-500/10;
+  background: rgba(255, 255, 255, 0.8);
+  @apply border-white/80 dark:bg-slate-900/80 dark:border-white/20 scale-[1.01] shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:shadow-indigo-500/20;
+  outline: none !important;
 }
+
+.glass-card:focus, 
+.glass-card:active, 
+.glass-card:focus-visible, 
+.glass-card:visited,
+.glass-card *:focus {
+  outline: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  box-shadow: none !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Force remove any ring or outline from all interactive elements */
+button:focus, 
+a:focus, 
+div:focus,
+[role="button"]:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+
+/* Remove ring from active states */
+.active, :focus, :active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+
+/* Hide Number Input Arrows */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+
+
 
 /* Loading Animation Styles */
 @keyframes airplane-float {
@@ -307,78 +358,6 @@ h6 {
   }
 }
 
-.geoapify-autocomplete-input {
-  background-color: transparent !important;
-  @apply bg-background/50 backdrop-blur-sm text-foreground border-input rounded-xl px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200;
-}
-
-/* Remove up/down arrows from number inputs */
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-input[type=number] {
-  -moz-appearance: textfield;
-}
-
-/* Google Places Autocomplete Glassmorphism */
-.pac-container {
-  @apply backdrop-blur-xl border border-white/40 rounded-2xl shadow-2xl mt-2 overflow-hidden;
-  background-color: rgba(255, 255, 255, 0.7) !important;
-  color: #1e293b !important;
-  z-index: 9999 !important;
-  font-family: 'Outfit', sans-serif !important;
-  border: 1px solid rgba(255, 255, 255, 0.5) !important;
-}
-
-.dark .pac-container {
-  background-color: rgba(15, 23, 42, 0.8) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: #f1f5f9 !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
-}
-
-.pac-item {
-  @apply px-4 py-3 border-b border-white/10 flex items-center gap-2 cursor-pointer transition-colors duration-200;
-  color: inherit !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
-}
-
-.dark .pac-item {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-}
-
-.pac-item:hover {
-  background-color: rgba(255, 255, 255, 0.3) !important;
-}
-
-.dark .pac-item:hover {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-}
-
-.pac-item-query {
-  @apply text-sm font-semibold;
-  color: inherit !important;
-}
-
-.pac-matched {
-  @apply text-primary font-bold;
-}
-
-.pac-icon {
-  @apply opacity-70;
-  filter: grayscale(1);
-}
-
-.dark .pac-icon {
-  filter: invert(1) grayscale(1);
-}
-
-.pac-item:last-child {
-  border-bottom: none !important;
-}
 
 /* Custom Scrollbar for Modals */
 .custom-scrollbar::-webkit-scrollbar {
@@ -418,3 +397,14 @@ input[type=number] {
 .scale-in-center {
   animation: scale-in-center 0.4s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
 }
+
+/* Hide Scrollbar Utility */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+

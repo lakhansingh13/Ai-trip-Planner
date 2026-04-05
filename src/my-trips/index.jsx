@@ -28,7 +28,7 @@ function MyTrips() {
         const querySnapshot = await getDocs(q);
         const trips = [];
         querySnapshot.forEach((doc) => {
-            trips.push(doc.data());
+            trips.push({ ...doc.data(), id: doc.id });
         });
         // Sort by ID (timestamp) in descending order to show recent first
         const sortedTrips = trips.sort((a, b) => b.id - a.id);

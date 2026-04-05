@@ -1,4 +1,4 @@
-import { GetPlaceDetails, PHOTO_REF_URL } from '@/service/GlobalApi';
+import { getUnsplashPhoto, getPexelsPhoto, getWikimediaPhoto } from '@/service/GlobalApi';
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import { safeRender } from '@/lib/renderUtils';
@@ -12,17 +12,37 @@ function UserTripCardItem({ trip }) {
   }, [trip])
 
   const GetPlacePhoto = async () => {
-    const data = {
-      textQuery: trip?.userSelection?.location?.label
+    const query = trip?.userSelection?.location?.label;
+    const cleanQuery = query?.split(',')[0] || query;
+    const lat = trip?.userSelection?.location?.location?.lat;
+    const lng = trip?.userSelection?.location?.location?.lng;
+    
+    if (!query) return;
+
+    let photo = null;
+
+    // 1. Try Wikimedia First
+    try {
+      photo = await getWikimediaPhoto(cleanQuery);
+    } catch (e) { console.error("Wikimedia error", e); }
+
+    // 2. Try Unsplash
+    if (!photo) {
+      try {
+        photo = await getUnsplashPhoto(cleanQuery + " travel");
+      } catch (e) { console.error("Unsplash error", e); }
     }
-    await GetPlaceDetails(data).then(resp => {
-      if (resp.data.places[0].photos) {
-        const PhotoUrl = PHOTO_REF_URL.replace('{NAME}', resp.data.places[0].photos[0].name);
-        setPhotoUrl(PhotoUrl);
-      }
-    }).catch(err => {
-      console.error("Error fetching photo:", err);
-    });
+
+    // 3. Try Pexels
+    if (!photo) {
+      try {
+        photo = await getPexelsPhoto(cleanQuery);
+      } catch (e) { console.error("Pexels error", e); }
+    }
+
+    if (photo) {
+      setPhotoUrl(photo);
+    }
   }
 
   return (

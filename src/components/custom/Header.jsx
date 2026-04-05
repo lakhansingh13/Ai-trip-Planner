@@ -76,7 +76,7 @@ function Header() {
 
 
   return (
-    <div className="glass-nav p-3 flex justify-between items-center w-full fixed top-0 left-0 right-0 bg-background/50 px-5 z-50">
+    <div className="glass-nav p-3 flex justify-between items-center w-full fixed top-0 left-0 right-0 bg-background/50 px-5 z-[40]">
       <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.location.href = '/'}>
         <img src="/logo.svg" className="h-7 sm:h-9 md:h-10 w-auto dark:invert" alt="Logo" />
       </div>

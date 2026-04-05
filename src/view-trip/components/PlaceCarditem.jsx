@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { GetPlaceDetails, PHOTO_REF_URL } from '@/service/GlobalApi';
+import { getUnsplashPhoto, getPexelsPhoto, getWikimediaPhoto } from '@/service/GlobalApi';
 import {
   Dialog,
   DialogContent,
@@ -14,15 +14,22 @@ import { getDetailedAIInfo } from '@/service/AIModal';
 import { Sparkles, Loader2, Info, Clock, CheckCircle2, Navigation } from 'lucide-react';
 import { safeRender } from '@/lib/renderUtils';
 
-function PlaceCarditem({ place }) {
+function PlaceCarditem({ place, location }) {
 
   const [PhotoUrl, setPhotoUrl] = useState();
   const [open, setOpen] = useState(false);
   const [aiData, setAiData] = useState(null);
   const [loadingAI, setLoadingAI] = useState(false);
+  const [realAddress, setRealAddress] = useState(place?.placeDetails);
 
   useEffect(() => {
-    place && GetPlacePhoto();
+    if (place) {
+      // Reduced delay to 500ms-1500ms for places
+      const timeoutId = setTimeout(() => {
+        GetPlacePhoto();
+      }, 500 + Math.random() * 1000);
+      return () => clearTimeout(timeoutId);
+    }
   }, [place])
 
   useEffect(() => {
@@ -45,17 +52,36 @@ function PlaceCarditem({ place }) {
   };
 
   const GetPlacePhoto = async () => {
-    const data = {
-      textQuery: place.placeName
+    const placeName = place.placeName;
+    const city = location?.split(',')[0] || "";
+    const searchTerms = placeName + " " + city;
+    
+    if (!placeName) return;
+
+    let photo = null;
+
+    // 1. Try Wikimedia First (Best for landmarks)
+    try {
+      photo = await getWikimediaPhoto(searchTerms);
+    } catch (e) { console.error("Wikimedia error", e); }
+
+    // 2. Try Pexels
+    if (!photo) {
+      try {
+        photo = await getPexelsPhoto(searchTerms + " exterior");
+      } catch (e) { console.error("Pexels error", e); }
     }
-    await GetPlaceDetails(data).then(resp => {
-      if (resp.data.places[0].photos) {
-        const PhotoUrl = PHOTO_REF_URL.replace('{NAME}', resp.data.places[0].photos[0].name);
-        setPhotoUrl(PhotoUrl);
-      }
-    }).catch(err => {
-      console.error("Error fetching photo:", err);
-    });
+
+    // 3. Try Unsplash
+    if (!photo) {
+      try {
+        photo = await getUnsplashPhoto(searchTerms + " landmark");
+      } catch (e) { console.error("Unsplash error", e); }
+    }
+
+    if (photo) {
+      setPhotoUrl(photo);
+    }
   }
 
   const openInMaps = () => {
@@ -66,7 +92,7 @@ function PlaceCarditem({ place }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <div className='glass-card p-4 h-full flex flex-col sm:flex-row gap-5 group animate-stagger-in cursor-pointer'>
+        <div className='glass-card p-4 h-full flex flex-col sm:flex-row gap-5 group cursor-pointer'>
           <div className="relative w-full sm:w-[140px] h-[140px] shrink-0 overflow-hidden rounded-2xl">
             <img
               src={PhotoUrl || '/placeholder.jpg'}
@@ -85,7 +111,7 @@ function PlaceCarditem({ place }) {
                 {safeRender(place.placeName)}
               </h2>
               <p className='text-sm text-muted-foreground line-clamp-2 mt-1 text-left'>
-                {safeRender(place.placeDetails)}
+                {safeRender(realAddress)}
               </p>
             </div>
 
@@ -126,7 +152,7 @@ function PlaceCarditem({ place }) {
             </div>
             <h2 className="text-3xl font-bold text-white drop-shadow-md mb-2">{safeRender(place?.placeName)}</h2>
             <p className="text-gray-200 text-sm flex items-center gap-2">
-              <FaMapMarkerAlt className="text-orange-400" /> {safeRender(place?.placeDetails?.split(',')[0])}
+              <FaMapMarkerAlt className="text-orange-400" /> {safeRender(realAddress?.split(',')[0])}
             </p>
           </div>
         </div>

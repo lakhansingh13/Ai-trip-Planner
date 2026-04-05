@@ -1,27 +1,28 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import {getFirestore, enableMultiTabIndexedDbPersistence} from "firebase/firestore";
-//import { getAnalytics } from "firebase/analytics";
+import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyAl_2aouDt7FtzvTMckQX5msom_M70MzNw",
-  authDomain: "ai-trip-planner-bf6e5.firebaseapp.com",
-  projectId: "ai-trip-planner-bf6e5",
-  storageBucket: "ai-trip-planner-bf6e5.firebasestorage.app",
-  messagingSenderId: "734499301844",
-  appId: "1:734499301844:web:f2fbd75eed117614404e41",
-  measurementId: "G-PZLGL30MN8"
+  apiKey: "AIzaSyCiw5NN0xpI2ucfY44RF1leb3rDNdtQuJs",
+  authDomain: "ai-world-routh.firebaseapp.com",
+  projectId: "ai-world-routh",
+  storageBucket: "ai-world-routh.firebasestorage.app",
+  messagingSenderId: "444740980143",
+  appId: "1:444740980143:web:70b64fe9b96cc7ec2a335a",
+  measurementId: "G-N9KCSFZ2EG"
 };
 
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 export const db=getFirestore(app);
 
-// Enable offline persistence
+// Enable offline persistence (Commented to prevent hangs in dev)
+/*
 enableMultiTabIndexedDbPersistence(db).catch((err) => {
     if (err.code == 'failed-precondition') {
         console.warn('Firestore persistence failed: Multiple tabs open');
@@ -29,4 +30,5 @@ enableMultiTabIndexedDbPersistence(db).catch((err) => {
         console.warn('Firestore persistence failed: Browser not supported');
     }
 });
-//const analytics = getAnalytics(app);
+*/
+export const analytics = getAnalytics(app);

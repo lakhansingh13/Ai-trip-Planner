@@ -9,8 +9,8 @@ function Hotels({ trip }) {
                🏨 <span className="text-black dark:text-white">Hotel Recommendation</span>
             </h2>
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
-                {trip?.TripData?.travelPlan?.hotelOptions?.map((hotel, index) => (
-                    <HotelCarditem key={index} hotel={hotel} />
+                {trip?.TripData?.hotelOptions?.map((hotel, index) => (
+                    <HotelCarditem key={index} hotel={hotel} location={trip?.userSelection?.location?.label} />
                 ))}
             </div>
         </div>
