@@ -2,17 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://world-routes.vercel.app/</loc>
-    <lastmod>2026-03-31T23:39:00+00:00</lastmod>
+    <lastmod>2026-04-05</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>1.00</priority>
   </url>
   <url>
     <loc>https://world-routes.vercel.app/create-trip</loc>
-    <lastmod>2026-03-31T23:39:00+00:00</lastmod>
+    <lastmod>2026-04-05</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://world-routes.vercel.app/my-trips</loc>
-    <lastmod>2026-03-31T23:39:00+00:00</lastmod>
+    <lastmod>2026-04-05</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.70</priority>
   </url>
 </urlset>
