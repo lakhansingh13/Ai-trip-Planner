@@ -1,4 +1,4 @@
-🚀 **Ai World Routes - AI Trip Plan**
+🚀 **Ai World Routes - AI Trip Planner**
 =====================
 
 **Tagline:** Empowering travel planning with AI-driven recommendations
